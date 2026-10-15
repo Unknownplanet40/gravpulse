@@ -221,5 +221,34 @@ class TestTrayIconGeneration(unittest.TestCase):
         self.assertFalse(res["cached"])
         self.assertEqual(len(res["groups"]), 0)
 
+    def test_antigravity_exit_retains_cached_offline(self):
+        """Verifies that closing Antigravity preserves recent quota in offline cached mode."""
+        from datetime import datetime
+        collector = AntigravityCollector()
+        collector.cached_pid = 9999
+        collector.cached_port = 54321
+        collector.cached_token = "secret"
+        collector.cached_email = "test@example.com"
+        collector.last_fetch_time = datetime.now()
+        collector.last_quota = {
+            "online": True,
+            "email": "test@example.com",
+            "plan": "Pro",
+            "groups": [{"name": "Claude", "buckets": [{"name": "Sonnet", "percent": 85.0, "reset_iso": ""}]}],
+            "lowest_percent": 85.0,
+            "last_updated": datetime.now()
+        }
+
+        # Mock port failure (process exited) and discovery failure
+        collector.request_user_info_from_port = lambda port, token: (_ for _ in ()).throw(Exception("Connection refused"))
+        collector.discover_credentials = lambda: (None, None, [])
+
+        res = collector.get_quota()
+        self.assertFalse(res["online"])
+        self.assertTrue(res["cached"])
+        self.assertEqual(len(res["groups"]), 1)
+        self.assertEqual(res["groups"][0]["buckets"][0]["percent"], 85.0)
+
 if __name__ == "__main__":
     unittest.main()
+

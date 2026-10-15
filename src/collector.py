@@ -218,11 +218,10 @@ class AntigravityCollector:
                 plan = user_info.get("plan") or self.request_plan_from_port(self.cached_port, self.cached_token)
                 return self._parse_response(raw, plan=plan, email=self.cached_email, name=user_info.get("name"))
             except Exception:
-                # Connection dropped or server restarted -> clear credentials & stale quota cache
+                # Connection dropped or server closed -> clear process credentials but retain last_quota for offline fallback
                 self.cached_port = None
                 self.cached_token = None
                 self.cached_pid = None
-                self.last_quota = None
 
         # 2. Discover credentials
         pid, token, ports = self.discover_credentials()

@@ -373,9 +373,10 @@ class QuotaPopupWindow:
         status_dot.pack(side=tk.LEFT, padx=(0, 6))
 
         if not is_online:
+            offline_text = "Offline (Cached)" if (is_cached or has_groups) else "Offline"
             off_tag = tk.Label(
                 h_right,
-                text="Offline",
+                text=offline_text,
                 font=("Segoe UI", 8),
                 fg="#f59e0b" if (is_cached or has_groups) else "#ea4335",
                 bg=theme["bg"]
