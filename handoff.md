@@ -4,22 +4,21 @@
 Windows desktop system tray widget monitoring Antigravity AI rate limits, reset timers, and desktop notifications, with auto dark/light theme support and formatted reset datetimes.
 
 ## 2. Current State
-Committed locally. Commit `92fddb3` (`feat: initialize GravPulse Antigravity AI quota widget`) created on branch `main`. Remote set to `https://github.com/Unknownplanet40/gravpulse.git`. Awaiting user confirmation to execute `git push`.
+README and assets updated locally. Ready to commit and push to `https://github.com/Unknownplanet40/gravpulse.git`. All 11 unit tests passing.
 
 ## 3. Active Files
-- `PROJECT-LOG.md` (Updated with commit entry)
-- `README.md` (GravPulse brand documentation)
-- `src/` (Core application modules)
+- `README.md` (Added `assets/banner.jpg`, fixed tray status SVG image links)
+- `assets/banner.jpg` (Hero visual banner)
 - `tests/test_collector.py` (11 unit tests passing)
+- `PROJECT-LOG.md` (Append-only record)
 
 ## 4. Changes Made
-- Staged all files.
-- Formulated conventional commit with full changelog body.
-- Committed locally via `92fddb3`.
-- Stopped at Step 6 to request push approval.
+- Added `assets/banner.jpg` directly under `# GravPulse` title in `README.md`.
+- Fixed broken Windows backslash paths in Tray Status Indicator table (`assets/svg/*.svg`).
+- Documented `assets/banner.jpg` in repository tree.
 
 ## 5. Failed Attempts
 None.
 
 ## 6. Specific Next Steps
-Execute `git push -u origin main` once user confirms approval.
+Commit and push changes to `origin/main` upon confirmation.

@@ -1,5 +1,7 @@
 # GravPulse
 
+![GravPulse Banner](assets/banner.jpg)
+
 > **Track your Antigravity AI quotas in real time.**
 
 GravPulse is a zero-config Windows 11 system tray widget that hooks directly into your local Antigravity language server RPC to monitor AI model quotas. Track 5-hour and weekly quotas for Gemini, Claude, and GPT models with live reset countdowns and native desktop alerts—no cloud API keys required.
@@ -27,7 +29,7 @@ GravPulse is a zero-config Windows 11 system tray widget that hooks directly int
 ### 1. Installation
 Clone the repository and install the lightweight dependencies:
 ```powershell
-git clone https://github.com/<your-username>/gravpulse.git
+git clone https://github.com/Unknownplanet40/gravpulse.git
 cd gravpulse
 pip install -r requirements.txt
 ```
@@ -43,11 +45,10 @@ Start GravPulse silently in the background:
 
 ## Usage
 
-
- Action | Description |
- :--- | :--- |
+| Interaction | Action |
+| :--- | :--- |
 | **Left-Click Tray Icon** | Toggles the fluent popover card showing circular progress rings, remaining percentages, and exact reset dates/times. |
-| **Right-Click Tray Icon** | Displays quick connectivity status (`Status: Online`), manual **Refresh Now**, **Theme** picker (System, Dark, Light), **Start with Windows** toggle, and **Exit**. |
+| **Right-Click Tray Icon** | Displays quick connectivity status (`● Status: Online`), manual **↻ Refresh Now**, **🔔 Test Notification**, **🎨 Theme** picker, **🚀 Start with Windows** toggle, and **✕ Exit**. |
 | **Hover Limit Rows** | Displays flyout tooltips explaining quota rules and exact reset datetimes in your local timezone. |
 | **Offline State** | Shows an amber status dot with a 1-click Windows 11 Fluent **Open Antigravity** launch button. |
 
@@ -58,11 +59,11 @@ Start GravPulse silently in the background:
 GravPulse uses an intelligent best-available capacity algorithm so you always know your true coding status:
 
 | Icon Status | Condition | Meaning |
-| :--- | :--- | :--- |
-| <img src="docs\gravpulse-assets\svg\tray-active.svg" width="32"/>  |  Best model capacity > 50% | High capacity available. Ready for heavy pair programming. |
-| <img src="docs\gravpulse-assets\svg\tray-warning.svg" width="32"/>  | Best model capacity 1% – 50% | Capacity is half-depleted or nearing reset window. Pace your requests. |
-| <img src="docs\gravpulse-assets\svg\tray-exhausted.svg" width="32"/>  | 0% across ALL model groups | All models exhausted. Waiting on countdown reset. |
-| <img src="docs\gravpulse-assets\svg\tray-offline.svg" width="32"/>  | Disconnected / No Cache | Antigravity is closed and no prior quota snapshot exists. |
+| :---: | :--- | :--- |
+| <img src="assets/svg/tray-active.svg" width="28" alt="Active" /> <br/> **Active** | Best model capacity > 50% | High capacity available. Ready for heavy pair programming. |
+| <img src="assets/svg/tray-warning.svg" width="28" alt="Warning" /> <br/> **Warning** | Best model capacity 1% – 50% | Capacity is half-depleted or nearing reset window. Pace your requests. |
+| <img src="assets/svg/tray-exhausted.svg" width="28" alt="Exhausted" /> <br/> **Exhausted** | 0% across ALL model groups | All rate limits exhausted. Waiting on countdown reset. |
+| <img src="assets/svg/tray-offline.svg" width="28" alt="Offline" /> <br/> **Offline** | Disconnected / No Cache | Antigravity is closed and no prior quota snapshot exists. |
 
 ---
 
@@ -70,6 +71,7 @@ GravPulse uses an intelligent best-available capacity algorithm so you always kn
 
 ```
 ├── assets/                 # GravPulse official visual brand assets
+│   ├── banner.jpg          # Project banner preview
 │   ├── ico/app.ico         # Application icon
 │   ├── png/                # High-res logos and app marks (16px to 1024px)
 │   ├── svg/                # Scalable vector sources
@@ -78,11 +80,12 @@ GravPulse uses an intelligent best-available capacity algorithm so you always kn
 │   ├── collector.py        # Antigravity ConnectRPC auto-discovery & cached offline countdown engine
 │   ├── popup.py            # Windows 11 Fluent Tkinter popover window with circular progress rings
 │   ├── tray.py             # Pystray tray daemon with smart status evaluation & themed Win32 context menu
+│   ├── notification.py     # Native Windows 10/11 toast notification dispatcher with sound
 │   ├── theme.py            # Windows registry dark/light mode detection & color palettes
 │   └── startup.py          # Windows shell:startup shortcut manager
 ├── tests/
-│   └── test_collector.py   # Automated unit test suite (10/10 passing)
-├── docs/                   # Product requirements (PRD), architecture, and asset guides
+│   └── test_collector.py   # Automated unit test suite (11/11 passing)
+├── docs/                   # Product requirements (PRD), architecture, and workflow guides
 ├── main.pyw                # Single-instance application coordinator & background poller
 ├── run.vbs                 # Windowless background launcher (zero console flash)
 ├── run.bat                 # 1-click batch launcher
@@ -95,7 +98,7 @@ GravPulse uses an intelligent best-available capacity algorithm so you always kn
 
 ## Running Tests
 
-GravPulse includes an automated test suite verifying process discovery, countdown calculation, tray icon generation, and theme resolution:
+GravPulse includes an automated test suite verifying process discovery, countdown calculation, tray icon generation, alert evaluation, and theme resolution:
 
 ```powershell
 python -m unittest tests/test_collector.py

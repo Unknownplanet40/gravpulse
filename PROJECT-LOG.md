@@ -628,3 +628,61 @@ Followed GEMINI.md Section 2 commit workflow:
 - Working tree clean, ready to push to `origin/main` upon approval.
 
 ---
+
+## October 15 at 10:45 AM
+### Asked
+Audit for private data or unwanted files and add to .gitignore.
+
+### Decision
+1. Scanned repository: zero hardcoded credentials, API keys, or personal username strings found.
+2. Hardened `.gitignore` to strictly ignore:
+   - Environment secrets (`.env`, `.env*.local`)
+   - Private keys & certificates (`*.key`, `*.pem`, `*.cert`, `*.crt`, `credentials.json`, `token.json`, `secrets.json`)
+   - Logs & crash dumps (`*.log`, `crash.log`, `app.log`, `*.pid`, `*.tmp`, `*.bak`)
+   - Windows shortcuts & shell thumbs (`*.lnk`, `Thumbs.db`, `ehthumbs.db`, `Desktop.ini`, `$RECYCLE.BIN/`)
+   - Local IDE settings (`.vscode/`, `*.code-workspace`, `.idea/`)
+   - Test coverage & scratch (`.pytest_cache/`, `.coverage`, `htmlcov/`, `scratch/`)
+3. Removed duplicate binary assets from `docs/gravpulse-assets/` (kept clean copy in `assets/`).
+4. Amended initial commit to `61200be`.
+>why: Prevent security leaks and bloat before pushing to public GitHub repo.
+
+### Shipped
+- Hardened `.gitignore`
+- Removed duplicate `docs/gravpulse-assets/`
+- Amended commit `61200be`
+- 11/11 tests pass
+
+---
+
+## October 15 at 10:45 AM
+### Asked
+Push to remote repository https://github.com/Unknownplanet40/gravpulse.git.
+
+### Decision
+Executed `git push -u origin main` following user confirmation.
+- Pushed commit `61200be` (`feat: initialize GravPulse Antigravity AI quota widget`).
+- CI release workflow `.github/workflows/release.yml` will trigger automatically on GitHub Actions, analyze conventional commit subject (`feat:`), bump version to `v0.1.0`, build release notes, and publish the first GitHub release.
+>why: User approved push to origin/main.
+
+### Shipped
+- Pushed to `origin/main` (`61200be`)
+- Tracking branch established
+- Automated CI release pipeline initiated
+
+---
+
+## October 15 at 10:49 AM
+### Asked
+Update Tray Status Indicator icons in README (not displaying) and add assets/banner.jpg.
+
+### Decision
+1. Replaced broken backslash paths `docs\gravpulse-assets\svg\...` in `README.md` with active web paths `assets/svg/tray-active.svg`, `tray-warning.svg`, `tray-exhausted.svg`, and `tray-offline.svg`.
+2. Added `assets/banner.jpg` hero preview image directly below the `# GravPulse` header.
+3. Updated repository structure tree in `README.md` to document `assets/banner.jpg` and `src/notification.py`.
+>why: Fix broken icon rendering on GitHub and showcase official banner asset.
+
+### Shipped
+- Fixed SVG image links in `README.md`
+- Added hero banner image `assets/banner.jpg` to `README.md`
+
+---
