@@ -167,5 +167,59 @@ class TestTrayIconGeneration(unittest.TestCase):
         self.assertIn("Quota Refreshed", notified[0][0])
         self.assertIn("refreshed to 100.0%", notified[0][1])
 
+    def test_plan_name_formatting(self):
+        """Verifies plan name formatting from raw tier string."""
+        collector = AntigravityCollector()
+        self.assertEqual(collector._format_plan_name("g1-pro-tier"), "Pro")
+        self.assertEqual(collector._format_plan_name("g1-ultra-tier"), "Ultra")
+        self.assertEqual(collector._format_plan_name("free-tier"), "Free")
+        self.assertEqual(collector._format_plan_name("enterprise-tier"), "Enterprise")
+        self.assertEqual(collector._format_plan_name(""), "Pro")
+
+    def test_account_switch_invalidates_cache(self):
+        """Verifies that changing account email or PID purges stale quota cache."""
+        from datetime import datetime
+        collector = AntigravityCollector()
+        collector.cached_pid = 1111
+        collector.cached_port = 50000
+        collector.cached_token = "token1"
+        collector.cached_email = "old@example.com"
+        collector.last_fetch_time = datetime.now()
+        collector.last_quota = {
+            "online": True,
+            "email": "old@example.com",
+            "plan": "Pro",
+            "groups": [{"name": "Models", "buckets": []}]
+        }
+
+        # Mock request_user_info_from_port returning new account
+        collector.request_user_info_from_port = lambda port, token: {
+            "email": "new@example.com",
+            "name": "New User",
+            "plan": "Ultra"
+        }
+        collector.request_quota_from_port = lambda port, token: {
+            "response": {"groups": []}
+        }
+
+        res = collector.get_quota()
+        self.assertEqual(res["email"], "new@example.com")
+        self.assertEqual(res["plan"], "Ultra")
+        self.assertEqual(collector.cached_email, "new@example.com")
+
+    def test_expired_cache_not_used_in_fallback(self):
+        """Verifies that offline fallback does not retain stale cache older than 5 minutes."""
+        from datetime import datetime, timedelta
+        collector = AntigravityCollector()
+        collector.last_fetch_time = datetime.now() - timedelta(seconds=400)
+        collector.last_quota = {
+            "online": True,
+            "groups": [{"name": "Models", "buckets": [{"percent": 90.0}]}]
+        }
+        res = collector._build_offline_fallback("Endpoint offline")
+        self.assertFalse(res["online"])
+        self.assertFalse(res["cached"])
+        self.assertEqual(len(res["groups"]), 0)
+
 if __name__ == "__main__":
     unittest.main()

@@ -96,12 +96,29 @@ class AntigravityTrayApp:
             self.icon.icon = create_tray_icon(100.0, is_online=False, theme_pref=self.theme_preference)
             self.icon.menu = self._build_menu()
 
+    def _trigger_fast_refresh(self):
+        """Asynchronously triggers a fast refresh so account/quota changes appear immediately."""
+        import threading
+        def _worker():
+            try:
+                data = self.collector.get_quota(force_refresh=True)
+                self.update_quota(data)
+                if self.popup and self.popup.is_visible:
+                    if self.popup.parent:
+                        self.popup.parent.after(0, lambda: self.popup.update_data(data))
+                    else:
+                        self.popup.update_data(data)
+            except Exception:
+                pass
+        threading.Thread(target=_worker, daemon=True).start()
+
     def _show_popup(self):
         if self.popup:
             if self.popup.parent:
                 self.popup.parent.after(0, lambda: self.popup.show(self.current_quota))
             else:
                 self.popup.show(self.current_quota)
+        self._trigger_fast_refresh()
 
     def _toggle_popup(self):
         if self.popup:
@@ -109,6 +126,7 @@ class AntigravityTrayApp:
                 self.popup.parent.after(0, lambda: self.popup.toggle(self.current_quota))
             else:
                 self.popup.toggle(self.current_quota)
+        self._trigger_fast_refresh()
 
     def _on_left_click(self, icon, item):
         self._toggle_popup()
@@ -154,44 +172,44 @@ class AntigravityTrayApp:
         has_groups = bool(self.current_quota and self.current_quota.get("groups"))
 
         if is_online:
-            status_text = "● Status: Online"
+            status_text = "Status: Online"
         elif is_cached or has_groups:
-            status_text = "◐ Status: Offline (Cached)"
+            status_text = "Status: Offline (Cached)"
         else:
-            status_text = "○ Status: Offline"
+            status_text = "Status: Offline"
 
         menu_items.append(pystray.MenuItem(status_text, lambda: None, enabled=False))
-        menu_items.append(pystray.MenuItem("⤢ View Details", lambda icon, item: self._show_popup(), default=True))
-        menu_items.append(pystray.MenuItem("↻ Refresh Now", self._on_refresh_clicked))
-        menu_items.append(pystray.MenuItem("🔔 Test Notification", self._on_test_notification))
+        menu_items.append(pystray.MenuItem("View Details", lambda icon, item: self._show_popup(), default=True))
+        menu_items.append(pystray.MenuItem("Refresh Now", self._on_refresh_clicked))
+        """ menu_items.append(pystray.MenuItem("Test Notification", self._on_test_notification)) """
 
         # Theme submenu
         theme_menu = pystray.Menu(
             pystray.MenuItem(
-                "💻 System Default",
+                "System Default",
                 lambda icon, item: self.set_theme("system"),
                 checked=lambda item: self.theme_preference == "system"
             ),
             pystray.MenuItem(
-                "🌙 Dark Mode",
+                "Dark Mode",
                 lambda icon, item: self.set_theme("dark"),
                 checked=lambda item: self.theme_preference == "dark"
             ),
             pystray.MenuItem(
-                "☀️ Light Mode",
+                "Light Mode",
                 lambda icon, item: self.set_theme("light"),
                 checked=lambda item: self.theme_preference == "light"
             )
         )
-        menu_items.append(pystray.MenuItem("🎨 Theme", theme_menu))
+        menu_items.append(pystray.MenuItem("Theme", theme_menu))
 
         menu_items.append(pystray.MenuItem(
-            "🚀 Start with Windows",
+            "Start with Windows",
             self._on_toggle_startup,
             checked=lambda item: is_startup_enabled()
         ))
         menu_items.append(pystray.Menu.SEPARATOR)
-        menu_items.append(pystray.MenuItem("✕ Exit", self._on_exit_clicked))
+        menu_items.append(pystray.MenuItem("Exit", self._on_exit_clicked))
 
         return pystray.Menu(*menu_items)
 

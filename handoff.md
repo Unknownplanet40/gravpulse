@@ -4,21 +4,27 @@
 Windows desktop system tray widget monitoring Antigravity AI rate limits, reset timers, and desktop notifications, with auto dark/light theme support and formatted reset datetimes.
 
 ## 2. Current State
-README and assets updated locally. Ready to commit and push to `https://github.com/Unknownplanet40/gravpulse.git`. All 11 unit tests passing.
+- **Process Status**: Live under PID 16104 (`pythonw.exe main.pyw`).
+- **Feature Status**: Plan tier badge, email subtitle, and account switch footnote active.
+- **Unit Tests**: 14/14 passing (`tests/test_collector.py`).
+- **Git Status**: Working tree modified (ready to commit on command).
 
 ## 3. Active Files
-- `README.md` (Added `assets/banner.jpg`, fixed tray status SVG image links)
-- `assets/banner.jpg` (Hero visual banner)
-- `tests/test_collector.py` (11 unit tests passing)
-- `PROJECT-LOG.md` (Append-only record)
+- `src/popup.py` (Added account persistence footnote at bottom of card)
+- `src/collector.py` (Sorts processes by `create_time` desc, hooks `GetUserStatus`, purges cache on account/PID change)
+- `src/tray.py` (Triggers fast refresh on tray click/toggle)
+- `main.pyw` (15s poll interval, clears alert tracking on account switch)
+- `tests/test_collector.py` (14 unit tests)
+- `PROJECT-LOG.md` (Permanent append-only record)
 
 ## 4. Changes Made
-- Added `assets/banner.jpg` directly under `# GravPulse` title in `README.md`.
-- Fixed broken Windows backslash paths in Tray Status Indicator table (`assets/svg/*.svg`).
-- Documented `assets/banner.jpg` in repository tree.
+- Added footnote note at the bottom of the popup card in `src/popup.py`: `"* Note: When switching accounts, data from the last account may persist until Antigravity is reloaded."`
+- Added hover tooltip explaining `Ctrl+Shift+P > Reload Window` requirement.
+- Verified 14/14 unit tests pass.
+- Relaunched widget under PID 4192.
 
 ## 5. Failed Attempts
 None.
 
 ## 6. Specific Next Steps
-Commit and push changes to `origin/main` upon confirmation.
+Awaiting user review or commit command.

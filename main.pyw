@@ -11,7 +11,7 @@ from src.tray import AntigravityTrayApp
 from src.theme import apply_win32_theme
 from src.notification import send_windows_toast
 
-POLL_INTERVAL_SECONDS = 60
+POLL_INTERVAL_SECONDS = 15
 IPC_PORT = 43912
 
 def ensure_single_instance():
@@ -52,6 +52,7 @@ class AntigravityQuotaApp:
 
         self.running = True
         self.current_data = None
+        self.current_account_email = None
         self.prev_bucket_percents = {}
         self.poll_thread = None
         self.server_socket = None
@@ -96,6 +97,12 @@ class AntigravityQuotaApp:
         return data
 
     def _apply_data(self, data, check_notifications=True):
+        email = data.get("email")
+        if email and self.current_account_email and email != self.current_account_email:
+            self.prev_bucket_percents.clear()
+        if email:
+            self.current_account_email = email
+
         self.current_data = data
         self.tray.update_quota(data)
         self.popup.update_data(data)

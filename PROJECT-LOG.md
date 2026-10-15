@@ -686,3 +686,94 @@ Update Tray Status Indicator icons in README (not displaying) and add assets/ban
 - Added hero banner image `assets/banner.jpg` to `README.md`
 
 ---
+
+## October 15 at 11:02 AM
+### Asked
+Push banner and tray icon SVG path fixes to remote repository.
+
+### Decision
+Rebased on top of remote release `v0.1.0` commits (`b72d839`, `653ee1f`) and pushed commit `5d9de63` (`docs(readme): add project banner and fix tray status SVG icons`) to `origin/main`.
+>why: User confirmed push; remote had advanced with automated v0.1.0 release.
+
+### Shipped
+- Pushed commit `5d9de63` to `https://github.com/Unknownplanet40/gravpulse.git`
+- Remote `main` fully synchronized
+
+---
+
+## October 15 at 2:10 PM
+### Asked
+Add plan tier (Pro, Ultra, etc.) below the title/header in the popup card.
+
+### Decision
+1. Implemented automatic tier extraction in `src/collector.py` via `GetUnleashData` ConnectRPC endpoint (`context.properties.userTierId`).
+2. Added `_format_plan_name` mapping `g1-pro-tier` -> "Pro", `g1-ultra-tier` -> "Ultra", `free-tier` -> "Free", etc., with offline fallback caching.
+3. Updated popup header in `src/popup.py`: added `title_box` container with `GravPulse` title and `{PLAN} PLAN` subtitle in 6pt bold Segoe UI with theme accent color.
+4. Added unit test `test_plan_name_formatting` in `tests/test_collector.py` (12/12 passing).
+5. Relaunched live widget under PID 14948 and showed popup on screen.
+>why: Displays user's subscription tier prominently under the app title.
+
+### Shipped
+- Plan detection in `src/collector.py`
+- Plan subtitle in `src/popup.py`
+- Unit test in `tests/test_collector.py`
+- Active widget PID 14948
+
+---
+
+## October 15 at 2:25 PM
+### Asked
+User reported: "i have an issue when i change account the old data or the info from last account still shows"
+
+### Decision
+Root cause:
+1. `psutil.process_iter()` returned processes in ascending PID order. When switching accounts, Antigravity spawns a new `language_server.exe` process. If the old process lingered, the collector hooked into the old process credentials.
+2. The collector lacked `cached_pid` and `cached_email` tracking. When connection was re-established or timed out, `_build_offline_fallback` served `self.last_quota` from the previous account.
+3. Polling interval was 60 seconds and clicking tray icons did not trigger an instant refresh.
+
+Fix:
+1. `src/collector.py`:
+   - Sorted `language_server.exe` processes by `create_time` descending so the active newest process is always selected.
+   - Added `GetUserStatus` ConnectRPC endpoint integration to query active account email, display name, and plan tier.
+   - Tracked `cached_pid` and `cached_email`. Purged `self.last_quota = None` immediately upon PID change or email change.
+   - Enforced 5-minute TTL on offline cache fallback.
+2. `src/tray.py`:
+   - Added `_trigger_fast_refresh()` on tray click/toggle so opening popup triggers immediate async quota fetch.
+3. `src/popup.py`:
+   - Displayed active account email alongside plan tier in subtitle (`{PLAN} PLAN • {email}`).
+4. `main.pyw`:
+   - Reduced polling interval to 15 seconds.
+   - Reset alert tracking (`prev_bucket_percents.clear()`) on account switch to prevent false alerts.
+5. `tests/test_collector.py`:
+   - Added unit tests for account switch cache invalidation and expired cache fallback (14/14 passing).
+>why: Prevents stale account data from persisting across account switches, ensuring immediate sync with the newly authenticated account.
+
+### Shipped
+- Process sorting by `create_time` descending in `src/collector.py`
+- Account detection & cache invalidation in `src/collector.py`
+- Fast refresh on tray interaction in `src/tray.py`
+- Account email display in `src/popup.py`
+- 15s poll interval & clean alert tracking in `main.pyw`
+- Unit tests in `tests/test_collector.py` (14 passing)
+- Live app relaunched under PID 2236
+
+---
+
+## October 15 at 2:45 PM
+### Asked
+Add a note below the popup about data from the last account possibly persisting.
+
+### Decision
+Added an informative footnote at the bottom of the popup card in `src/popup.py` (for both active quota container and offline states):
+`"* Note: When switching accounts, data from the last account may persist until Antigravity is reloaded."`
+Configured with Segoe UI 7pt, muted secondary text color, left-aligned, with an interactive tooltip explaining:
+`"Antigravity's local language server holds credentials in memory. Reload Antigravity (Ctrl+Shift+P > Developer: Reload Window) to immediately sync newly signed-in accounts."`
+>why: Informs user that Antigravity's background process requires a window reload to refresh credentials after an account switch.
+
+### Shipped
+- Added account persistence note & hover tooltip in `src/popup.py`
+- Unit tests verified (14/14 passing)
+- Live app relaunched under PID 4192
+
+---
+

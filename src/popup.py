@@ -317,14 +317,36 @@ class QuotaPopupWindow:
             )
         icon_lbl.pack(side=tk.LEFT, padx=(0, 6))
 
+        # Title and Plan Subtitle
+        title_box = tk.Frame(h_left, bg=theme["bg"])
+        title_box.pack(side=tk.LEFT)
+
         title_lbl = tk.Label(
-            h_left,
+            title_box,
             text="GravPulse",
             font=("Segoe UI", 9, "bold"),
             fg=theme["text_primary"],
             bg=theme["bg"]
         )
-        title_lbl.pack(side=tk.LEFT)
+        title_lbl.pack(anchor="w")
+
+        plan_name = self.cached_quota.get("plan", "Pro") if self.cached_quota else "Pro"
+        email = self.cached_quota.get("email") if self.cached_quota else ""
+        plan_text = f"{plan_name.upper()} PLAN"
+        if email:
+            short_email = email if len(email) <= 24 else email[:21] + ".."
+            plan_text += f" • {short_email}"
+
+        plan_lbl = tk.Label(
+            title_box,
+            text=plan_text,
+            font=("Segoe UI", 6, "bold"),
+            fg=theme["accent"],
+            bg=theme["bg"]
+        )
+        plan_lbl.pack(anchor="w")
+        if email:
+            HoverTooltip(plan_lbl, f"Active Account: {email}\nPlan Tier: {plan_name}")
 
         h_right = tk.Frame(header, bg=theme["bg"])
         h_right.pack(side=tk.RIGHT)
@@ -452,6 +474,18 @@ class QuotaPopupWindow:
 
             btn_container.bind("<Button-1>", _launch_and_refresh)
             btn_launch.bind("<Button-1>", _launch_and_refresh)
+
+            note_offline = tk.Label(
+                offline_frame,
+                text="* Note: When switching accounts, data from the last account may persist until Antigravity is reloaded.",
+                font=("Segoe UI", 7),
+                fg=theme["text_secondary"],
+                bg=theme["bg"],
+                wraplength=260,
+                justify="left",
+                anchor="w"
+            )
+            note_offline.pack(anchor="w", pady=(14, 0))
             return
 
         raw_groups = self.cached_quota.get("groups", [])
@@ -754,3 +788,26 @@ class QuotaPopupWindow:
 
             btn_box.bind("<Button-1>", _launch_bottom)
             btn_open.bind("<Button-1>", _launch_bottom)
+
+        # Account switch note at bottom of popup card
+        note_frame = tk.Frame(container, bg=theme["bg"])
+        note_frame.pack(fill=tk.X, pady=(6, 0))
+
+        note_lbl = tk.Label(
+            note_frame,
+            text="* Note: When switching accounts, data from the last account may persist until Antigravity is reloaded.",
+            font=("Segoe UI", 7),
+            fg=theme["text_secondary"],
+            bg=theme["bg"],
+            wraplength=270,
+            justify="left",
+            anchor="w"
+        )
+        note_lbl.pack(fill=tk.X)
+
+        tip_note = HoverTooltip(
+            [note_frame, note_lbl],
+            "Antigravity's local language server holds credentials in memory. Reload Antigravity (Ctrl+Shift+P > Developer: Reload Window) to immediately sync newly signed-in accounts.",
+            theme=theme
+        )
+        self.tooltips.append(tip_note)
