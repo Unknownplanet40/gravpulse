@@ -253,18 +253,13 @@ class AntigravityCollector:
         return self._build_offline_fallback("Unable to connect to Antigravity RPC endpoint")
 
     def _build_offline_fallback(self, error_msg):
-        """Constructs offline response. Stale cache is discarded if expired (>5min) or account changed."""
+        """Constructs offline response. Preserves cached quota indefinitely until Antigravity starts again."""
         now = datetime.now()
         plan = self.last_quota.get("plan", "Pro") if self.last_quota else "Pro"
         email = self.last_quota.get("email", "") if self.last_quota else ""
         name = self.last_quota.get("name", "") if self.last_quota else ""
 
-        # Check if cache is still valid (less than 300 seconds old if timestamp is set)
-        is_cache_fresh = True
-        if self.last_fetch_time is not None:
-            is_cache_fresh = (now - self.last_fetch_time).total_seconds() < 300
-
-        if is_cache_fresh and self.last_quota and self.last_quota.get("groups"):
+        if self.last_quota and self.last_quota.get("groups"):
             # Deep copy groups and recalculate real-time countdowns from reset_iso
             updated_groups = []
             all_percents = []

@@ -207,19 +207,20 @@ class TestTrayIconGeneration(unittest.TestCase):
         self.assertEqual(res["plan"], "Ultra")
         self.assertEqual(collector.cached_email, "new@example.com")
 
-    def test_expired_cache_not_used_in_fallback(self):
-        """Verifies that offline fallback does not retain stale cache older than 5 minutes."""
+    def test_offline_cache_persists_indefinitely(self):
+        """Verifies that offline fallback retains cached quota indefinitely until Antigravity starts again."""
         from datetime import datetime, timedelta
         collector = AntigravityCollector()
-        collector.last_fetch_time = datetime.now() - timedelta(seconds=400)
+        collector.last_fetch_time = datetime.now() - timedelta(hours=24)
         collector.last_quota = {
             "online": True,
-            "groups": [{"name": "Models", "buckets": [{"percent": 90.0}]}]
+            "groups": [{"name": "Models", "buckets": [{"percent": 90.0, "reset_iso": ""}]}]
         }
         res = collector._build_offline_fallback("Endpoint offline")
         self.assertFalse(res["online"])
-        self.assertFalse(res["cached"])
-        self.assertEqual(len(res["groups"]), 0)
+        self.assertTrue(res["cached"])
+        self.assertEqual(len(res["groups"]), 1)
+        self.assertEqual(res["groups"][0]["buckets"][0]["percent"], 90.0)
 
     def test_antigravity_exit_retains_cached_offline(self):
         """Verifies that closing Antigravity preserves recent quota in offline cached mode."""

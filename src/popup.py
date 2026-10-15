@@ -344,9 +344,9 @@ class QuotaPopupWindow:
             fg=theme["accent"],
             bg=theme["bg"]
         )
-        plan_lbl.pack(anchor="w")
+        """ plan_lbl.pack(anchor="w")
         if email:
-            HoverTooltip(plan_lbl, f"Active Account: {email}\nPlan Tier: {plan_name}")
+            HoverTooltip(plan_lbl, f"Active Account: {email}\nPlan Tier: {plan_name}") """
 
         h_right = tk.Frame(header, bg=theme["bg"])
         h_right.pack(side=tk.RIGHT)
@@ -363,17 +363,18 @@ class QuotaPopupWindow:
         else:
             dot_color = "#ea4335"  # Red
 
+        LabeSltexts = "🟢" if is_online else ("💾 Cached" if (is_cached or has_groups) else "🔴")
         status_dot = tk.Label(
             h_right,
-            text="●",
-            font=("Segoe UI", 7),
+            text=LabeSltexts,
+            font=("Segoe UI", 8),
             fg=dot_color,
             bg=theme["bg"]
         )
-        status_dot.pack(side=tk.LEFT, padx=(0, 6))
+        status_dot.pack(side=tk.LEFT, padx=(0, 3))
 
         if not is_online:
-            offline_text = "Offline (Cached)" if (is_cached or has_groups) else "Offline"
+            offline_text = "Cached" if (is_cached or has_groups) else "Offline"
             off_tag = tk.Label(
                 h_right,
                 text=offline_text,
@@ -381,7 +382,8 @@ class QuotaPopupWindow:
                 fg="#f59e0b" if (is_cached or has_groups) else "#ea4335",
                 bg=theme["bg"]
             )
-            off_tag.pack(side=tk.LEFT, padx=(0, 6))
+            """ off_tag.pack(side=tk.LEFT, padx=(0, 6)) """
+            
 
         btn_refresh = tk.Label(
             h_right,
@@ -412,6 +414,8 @@ class QuotaPopupWindow:
         # Content container: If offline and NO cached data, show offline frame with 1-click launch button
         if not is_online and not has_groups:
             err_msg = self.cached_quota.get("error") if self.cached_quota else "Waiting for Antigravity..."
+            if err_msg.lower() == "antigravity language_server not found or not running":
+                err_msg = "Unable to authenticate with Antigravity. Please verify that Antigravity is running and try again."
             offline_frame = tk.Frame(main_card, bg=theme["bg"])
             offline_frame.pack(fill=tk.BOTH, expand=True, padx=14, pady=16)
             tk.Label(
@@ -427,8 +431,8 @@ class QuotaPopupWindow:
                 font=("Segoe UI", 8),
                 fg=theme["text_secondary"],
                 bg=theme["bg"],
-                wraplength=260,
-                justify="left"
+                wraplength=270,
+                justify="center",
             ).pack(anchor="w", pady=(4, 12))
 
             # Windows 11 Fluent Button (Accent Pill)
@@ -437,9 +441,10 @@ class QuotaPopupWindow:
                 bg="#005fb8" if theme.get("name") == "light" else "#60cdff",
                 highlightthickness=1,
                 highlightbackground="#004c99" if theme.get("name") == "light" else "#78d4ff",
-                cursor="hand2"
+                cursor="hand2",
             )
-            btn_container.pack(anchor="w")
+            btn_container.pack(fill=tk.X)
+            
 
             btn_launch = tk.Label(
                 btn_container,
@@ -447,11 +452,11 @@ class QuotaPopupWindow:
                 font=("Segoe UI", 9, "bold"),
                 fg="#ffffff" if theme.get("name") == "light" else "#000000",
                 bg="#005fb8" if theme.get("name") == "light" else "#60cdff",
-                padx=16,
+                padx=12,
                 pady=6,
                 cursor="hand2"
             )
-            btn_launch.pack()
+            btn_launch.pack(fill=tk.X)
 
             btn_bg_normal = "#005fb8" if theme.get("name") == "light" else "#60cdff"
             btn_bg_hover = "#1a6fbf" if theme.get("name") == "light" else "#78d4ff"
