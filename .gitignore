@@ -71,3 +71,6 @@ changelog_body.txt
 .coverage
 htmlcov/
 scratch/
+
+# Miscellaneous
+PROJECT-LOG.md
