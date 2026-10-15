@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<g transform="translate(-2 8) scale(.86)">
+<path d="M50 4 Q55 45 96 50 Q55 55 50 96 Q45 55 4 50 Q45 45 50 4Z" fill="none" stroke="#06121C" stroke-opacity=".65" stroke-width="7" stroke-linejoin="round"/>
+<path d="M50 4 Q55 45 96 50 Q55 55 50 96 Q45 55 4 50 Q45 45 50 4Z" fill="#22E4FF"/></g>
+<circle cx="78" cy="22" r="19" fill="#06121C" fill-opacity=".85"/>
+<circle cx="78" cy="22" r="14" fill="#34D399"/>
+</svg>

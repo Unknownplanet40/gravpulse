@@ -1,0 +1,73 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+
+# Build & Cache Outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.cache/
+.turbo/
+*.tsbuildinfo
+
+# Environment, Secrets & Credentials
+.env
+.env*.local
+!.env.example
+*.key
+*.pem
+*.cert
+*.crt
+credentials.json
+token.json
+secrets.json
+
+# Logs, PIDs & Crash Dumps
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+crash.log
+app.log
+*.pid
+*.tmp
+*.bak
+
+# Windows Shell & Shortcuts
+*.lnk
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Auto-Update & Release Temporary Files
+_update_tmp/
+_update_backup/
+.commit_msg.txt
+changelog_body.txt
+
+# OS & Editor Files
+.DS_Store
+.idea/
+.vscode/
+*.code-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Testing & Scratch
+.pytest_cache/
+.coverage
+htmlcov/
+scratch/
