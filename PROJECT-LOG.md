@@ -777,3 +777,18 @@ Configured with Segoe UI 7pt, muted secondary text color, left-aligned, with an 
 
 ---
 
+## October 15 at 2:51 PM
+### Asked
+User confirmed push of commit `8bbf1ed` to remote repository.
+
+### Decision
+Pushed commit `8bbf1ed` (`feat(collector): support account switching, plan tier display, and fast sync`) to `origin/main`.
+>why: User confirmed push; triggers automated CI release workflow for v0.2.0.
+
+### Shipped
+- Pushed `8bbf1ed` to `https://github.com/Unknownplanet40/gravpulse.git`
+- Automated CI release triggered for `v0.2.0`
+- Live widget running under PID 16104
+
+---
+
