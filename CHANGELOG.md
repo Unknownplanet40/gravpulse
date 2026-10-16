@@ -4,6 +4,34 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-16
+
+### Added
+- PyInstaller spec (GravPulse.spec) bundling assets, icons, and dynamic version info. (6c8048a)
+- Windows version info definition (version_info.txt) embedding CompanyName, FileDescription, ProductVersion, LegalCopyright, and Comments. (6c8048a)
+- Path resolution module (src/paths.py) supporting both development source and frozen PyInstaller (sys._MEIPASS) environments. (6c8048a)
+- Local build script (build.bat) to compile standalone executable in one click. (6c8048a)
+- Unit tests (tests/test_paths.py) for path resolution and frozen simulation. (6c8048a)
+- Windows CI release job in .github/workflows/release.yml to compile and upload GravPulse.exe directly to GitHub Releases on tag. (6c8048a)
+
+### Changed
+- Added pyinstaller>=6.0.0 to requirements.txt. (6c8048a)
+- Updated popup, tray, and main entry points to resolve assets through centralized path resolver. (6c8048a)
+- update .gitignore and PROJECT-LOG formatting (d2a49c2)
+- update PROJECT-LOG and handoff for v0.2.0 release (a5077ad)
+- point version.json at release v0.2.0 [skip ci] (f001f1e)
+
+### Fixed
+- Removed duplicate tray icon notification call so only branded Windows toast with image is displayed. (6c8048a)
+- Updated startup shortcut creation to target sys.executable directly when running as frozen binary. (6c8048a)
+- Added permanent app icon caching in LocalAppData for reliable Windows toast and shortcut displays. (6c8048a)
+- Removed 300s TTL cache discard in `src/collector.py` so offline fallback retains cached model quotas until next process launch. (6df59ff)
+- Updated `tests/test_collector.py` with test verifying indefinite cache retention across 24h simulated offline time. (6df59ff)
+- Preserved `self.last_quota` in `src/collector.py` when fast-path connection drops on process shutdown. (5afbfd0)
+- Updated offline badge text in `src/popup.py` to display "Offline (Cached)" when cached data is active. (5afbfd0)
+- Added reproduction test in `tests/test_collector.py` to prevent regression. (5afbfd0)
+
+
 ## [0.2.0] - 2026-10-15
 
 ### Added
