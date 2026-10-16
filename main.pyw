@@ -10,6 +10,7 @@ from src.popup import QuotaPopupWindow
 from src.tray import AntigravityTrayApp
 from src.theme import apply_win32_theme
 from src.notification import send_windows_toast
+from src.paths import get_resource_path, get_app_dir
 
 POLL_INTERVAL_SECONDS = 15
 IPC_PORT = 43912
@@ -36,7 +37,7 @@ class AntigravityQuotaApp:
         self.root = tk.Tk()
         self.root.withdraw()  # Hidden master root
 
-        app_ico = Path(__file__).resolve().parent / "assets" / "ico" / "app.ico"
+        app_ico = get_resource_path("assets/ico/app.ico")
         if app_ico.exists():
             try:
                 self.root.iconbitmap(str(app_ico))
@@ -138,12 +139,6 @@ class AntigravityQuotaApp:
 
     def _notify(self, title, message):
         try:
-            if self.tray.icon:
-                self.tray.icon.notify(message, title)
-        except Exception:
-            pass
-
-        try:
             threading.Thread(target=send_windows_toast, args=(title, message), daemon=True).start()
         except Exception:
             pass
@@ -212,7 +207,7 @@ if __name__ == "__main__":
         app = AntigravityQuotaApp()
         app.run()
     except Exception as e:
-        log_path = Path(__file__).resolve().parent / "crash.log"
+        log_path = get_app_dir() / "crash.log"
         with open(log_path, "a") as f:
             f.write(f"\n--- {time.ctime()} ---\n")
             traceback.print_exc(file=f)

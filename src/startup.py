@@ -22,21 +22,30 @@ def enable_startup(target_script_path: str = None) -> bool:
     try:
         startup_path = get_startup_file_path()
         if not target_script_path:
-            # Point to main.pyw in current project
-            base_dir = Path(__file__).resolve().parent.parent
-            target_script_path = str(base_dir / "main.pyw")
-
-        # Find pythonw.exe
-        python_exe = Path(sys.executable)
-        pythonw_exe = python_exe.parent / "pythonw.exe"
-        runner = str(pythonw_exe) if pythonw_exe.exists() else str(python_exe)
-        working_dir = str(Path(target_script_path).parent)
+            if getattr(sys, "frozen", False):
+                runner = str(Path(sys.executable).resolve())
+                arguments_arg = ""
+                working_dir = str(Path(sys.executable).resolve().parent)
+            else:
+                base_dir = Path(__file__).resolve().parent.parent
+                target_script_path = str(base_dir / "main.pyw")
+                python_exe = Path(sys.executable)
+                pythonw_exe = python_exe.parent / "pythonw.exe"
+                runner = str(pythonw_exe) if pythonw_exe.exists() else str(python_exe)
+                arguments_arg = f'$Shortcut.Arguments = \'"{target_script_path}"\''
+                working_dir = str(Path(target_script_path).parent)
+        else:
+            python_exe = Path(sys.executable)
+            pythonw_exe = python_exe.parent / "pythonw.exe"
+            runner = str(pythonw_exe) if pythonw_exe.exists() else str(python_exe)
+            arguments_arg = f'$Shortcut.Arguments = \'"{target_script_path}"\''
+            working_dir = str(Path(target_script_path).parent)
 
         ps_script = f"""
 $WshShell = New-Object -ComObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut('{str(startup_path)}')
 $Shortcut.TargetPath = '{runner}'
-$Shortcut.Arguments = '"{target_script_path}"'
+{arguments_arg}
 $Shortcut.WorkingDirectory = '{working_dir}'
 $Shortcut.Description = 'GravPulse AI Quota Monitor'
 $Shortcut.Save()

@@ -5,8 +5,9 @@ from datetime import datetime
 from pathlib import Path
 from PIL import Image, ImageTk
 from src.theme import get_theme, get_status_color, COLOR_RED
+from src.paths import get_resource_path
 
-_APP_ICON_PATH = Path(__file__).resolve().parent.parent / "assets" / "png" / "app-icon-32.png"
+_APP_ICON_PATH = get_resource_path("assets/png/app-icon-32.png")
 
 def launch_antigravity():
     """Launches Antigravity application in detached background process."""
@@ -414,8 +415,10 @@ class QuotaPopupWindow:
         # Content container: If offline and NO cached data, show offline frame with 1-click launch button
         if not is_online and not has_groups:
             err_msg = self.cached_quota.get("error") if self.cached_quota else "Waiting for Antigravity..."
+
             if err_msg.lower() == "antigravity language_server not found or not running":
-                err_msg = "Unable to authenticate with Antigravity. Please verify that Antigravity is running and try again."
+                err_msg = "Your usage limits cannot be cached because Antigravity is not running. Please ensure Antigravity is running in the background to retrieve and cache your limits for offline access."
+
             offline_frame = tk.Frame(main_card, bg=theme["bg"])
             offline_frame.pack(fill=tk.BOTH, expand=True, padx=14, pady=16)
             tk.Label(
@@ -520,6 +523,9 @@ class QuotaPopupWindow:
         for g_idx, (model_name, buckets) in enumerate(display_groups):
             card_bg = theme["card_bg"]
             hover_bg = theme.get("row_hover", "#353535")
+            if any(float(b.get("percent", 0.0)) <= 0.9 for b in buckets):
+                card_bg = theme.get("card_bg_exhausted", "#2a2a2a")
+                hover_bg = theme.get("row_hover_exhausted", "#353535")
 
             # Windows 11 elevated card for model group
             card = tk.Frame(
@@ -595,6 +601,10 @@ class QuotaPopupWindow:
                     b_name = bucket.get("name", "Limit")
                     pct = bucket.get("percent", 0.0)
 
+                    #remove Gemini 4 Argon in the name
+                    if "Gemini 4 Argon" in b_name:
+                        b_name = b_name.replace("Gemini 4 Argon", "").strip()
+
                     # If 5-hour limit is 100%, hide it
                     is_5h = "5" in b_name.lower() or "five" in b_name.lower() or "5" in bucket.get("id", "").lower()
                     if is_5h and float(pct) >= 99.99:
@@ -608,7 +618,7 @@ class QuotaPopupWindow:
                     left_col.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
                     # Check if limit is 0% depleted
-                    is_depleted = float(pct) <= 0.0
+                    is_depleted = float(pct) <= 0.9
                     if is_depleted:
                         clean_name = b_name.replace(" Remaining", "").strip()
                         title_text = f"{clean_name} (Exhausted)"
@@ -616,7 +626,7 @@ class QuotaPopupWindow:
                     else:
                         title_text = b_name
                         pct_fg = theme["text_primary"]
-
+                    
                     title_lbl = tk.Label(
                         left_col,
                         text=title_text,
@@ -813,7 +823,7 @@ class QuotaPopupWindow:
 
         tip_note = HoverTooltip(
             [note_frame, note_lbl],
-            "Antigravity's local language server holds credentials in memory. Reload Antigravity (Ctrl+Shift+P > Developer: Reload Window) to immediately sync newly signed-in accounts.",
+            "Antigravity's local language server holds credentials in memory. Reload Antigravity to immediately sync newly signed-in accounts.",
             theme=theme
         )
         self.tooltips.append(tip_note)

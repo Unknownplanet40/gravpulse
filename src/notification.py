@@ -3,21 +3,35 @@ import sys
 import html
 import winreg
 import subprocess
+import shutil
 from pathlib import Path
+from src.paths import get_resource_path, get_base_dir
 
 APP_ID = "GravPulse"
-PROJECT_DIR = Path(__file__).resolve().parent.parent
-ICON_ICO = PROJECT_DIR / "assets" / "ico" / "app.ico"
-ICON_PNG = PROJECT_DIR / "assets" / "png" / "app-icon-48.png"
+ICON_ICO = get_resource_path("assets/ico/app.ico")
+ICON_PNG = get_resource_path("assets/png/app-icon-48.png")
 
 def ensure_app_registered():
     """Registers GravPulse in Windows AppUserModelId and Start Menu for branded toast notifications."""
     try:
+        # Cache permanent icon copy in local appdata for reliable Windows notification display
+        appdata_local = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")) / "GravPulse"
+        appdata_local.mkdir(parents=True, exist_ok=True)
+        permanent_png = appdata_local / "app-icon-48.png"
+        permanent_ico = appdata_local / "app.ico"
+        if not permanent_png.exists() and ICON_PNG.exists():
+            shutil.copy2(ICON_PNG, permanent_png)
+        if not permanent_ico.exists() and ICON_ICO.exists():
+            shutil.copy2(ICON_ICO, permanent_ico)
+
+        icon_for_reg = str(permanent_png if permanent_png.exists() else ICON_PNG)
+        icon_for_sc = str(permanent_ico if permanent_ico.exists() else ICON_ICO)
+
         # 1. Register in HKCU\Software\Classes\AppUserModelId\GravPulse
         reg_path = rf"Software\Classes\AppUserModelId\{APP_ID}"
         with winreg.CreateKey(winreg.HKEY_CURRENT_USER, reg_path) as key:
             winreg.SetValueEx(key, "DisplayName", 0, winreg.REG_SZ, "GravPulse")
-            winreg.SetValueEx(key, "IconUri", 0, winreg.REG_SZ, str(ICON_PNG))
+            winreg.SetValueEx(key, "IconUri", 0, winreg.REG_SZ, icon_for_reg)
             winreg.SetValueEx(key, "ShowInSettings", 0, winreg.REG_DWORD, 1)
 
         # 2. Ensure Start Menu shortcut exists with AppId
@@ -26,11 +40,16 @@ def ensure_app_registered():
             programs_dir = Path(appdata) / "Microsoft" / "Windows" / "Start Menu" / "Programs"
             shortcut_path = programs_dir / f"{APP_ID}.lnk"
             if not shortcut_path.exists():
+                if getattr(sys, "frozen", False):
+                    target_exec = str(Path(sys.executable).resolve())
+                else:
+                    target_exec = str((get_base_dir() / "run.vbs").resolve())
+
                 vbs_code = f"""
                 Set wsh = CreateObject("WScript.Shell")
                 Set sc = wsh.CreateShortcut("{shortcut_path}")
-                sc.TargetPath = "{PROJECT_DIR / 'run.vbs'}"
-                sc.IconLocation = "{ICON_ICO}"
+                sc.TargetPath = "{target_exec}"
+                sc.IconLocation = "{icon_for_sc}"
                 sc.Description = "Track Antigravity AI quotas in real time."
                 sc.Save
                 """

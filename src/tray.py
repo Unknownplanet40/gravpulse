@@ -5,8 +5,9 @@ from src.theme import get_theme, get_rgb_status_color, apply_win32_theme
 
 import os
 from pathlib import Path
+from src.paths import get_resource_path
 
-_ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets" / "tray"
+_ASSETS_DIR = get_resource_path("assets/tray")
 
 def create_tray_icon(percent=100.0, is_online=True, theme_pref="system", size=64):
     """Loads official GravPulse tray asset based on status (active, warning, exhausted, offline)."""
@@ -142,11 +143,6 @@ class AntigravityTrayApp:
 
     def _on_test_notification(self, icon, item):
         from src.notification import send_windows_toast
-        try:
-            if self.icon:
-                self.icon.notify("Claude 3.5 Sonnet (5h) has refreshed to 100%!", "GravPulse: Quota Refreshed")
-        except Exception:
-            pass
         send_windows_toast("GravPulse: Quota Refreshed", "Claude 3.5 Sonnet (5h) has refreshed to 100%!")
 
     def _on_toggle_startup(self, icon, item):
@@ -249,13 +245,20 @@ class AntigravityTrayApp:
 
         # Update tooltip (Win32 limit is strictly 128 chars)
         if is_online:
-            tooltip_lines = ["GravPulse:"]
+            tooltip_lines = ["GravPulse: Online"]
             for g in quota_data.get("groups", []):
-                short_group = "Gemini" if "gemini" in g.get("name", "").lower() else "Claude"
+                group_name = g.get("name", "").lower()
+                short_group = ("Argon" if "argon" in group_name else ("Gemini" if "gemini" in group_name else "Claude")).ljust(6)
                 parts = []
                 for b in g.get("buckets", []):
                     short_window = "Wk" if "week" in b.get("name", "").lower() else "5h"
-                    parts.append(f"{short_window}:{int(b.get('percent', 0))}%")
+                    percent = float(b.get("percent", 0))
+                    if short_window == "Wk" and 0 <= percent <= 0.9:
+                        parts.append("Exhausted")
+                        continue
+                    if short_window == "5h" and percent == 100:
+                        continue
+                    parts.append(f"{short_window}:{int(percent)}%")
                 if parts:
                     tooltip_lines.append(f"{short_group} " + " ".join(parts))
             full_tooltip = "\n".join(tooltip_lines)
