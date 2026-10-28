@@ -68,6 +68,12 @@ class TestTrayIconGeneration(unittest.TestCase):
         self.assertIn(system["name"], ["dark", "light"])
         self.assertEqual(dark["bg"], "#24252a")
         self.assertEqual(light["bg"], "#f3f3f3")
+        self.assertEqual(dark["card_bg_exhausted"], "#2a2b31")
+        self.assertEqual(light["card_bg_exhausted"], "#f9f9f9")
+        self.assertEqual(dark["card_border_exhausted"], "#363843")
+        self.assertEqual(light["card_border_exhausted"], "#e8e8e8")
+        self.assertEqual(dark["row_hover_exhausted"], "#33353d")
+        self.assertEqual(light["row_hover_exhausted"], "#f0f0f0")
 
     def test_format_reset_datetime(self):
         """Verifies exact datetime formatting for weekly reset."""

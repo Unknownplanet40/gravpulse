@@ -521,18 +521,22 @@ class QuotaPopupWindow:
                 w.bind("<Leave>", _leave, add="+")
 
         for g_idx, (model_name, buckets) in enumerate(display_groups):
-            card_bg = theme["card_bg"]
-            hover_bg = theme.get("row_hover", "#353535")
-            if any(float(b.get("percent", 0.0)) <= 0.9 for b in buckets):
-                card_bg = theme.get("card_bg_exhausted", "#2a2a2a")
-                hover_bg = theme.get("row_hover_exhausted", "#353535")
+            is_exhausted = any(float(b.get("percent", 0.0)) <= 0.9 for b in buckets)
+            if is_exhausted:
+                card_bg = theme.get("card_bg_exhausted", "#2a2b31" if theme.get("name") == "dark" else "#f9f9f9")
+                hover_bg = theme.get("row_hover_exhausted", "#33353d" if theme.get("name") == "dark" else "#f0f0f0")
+                card_border = theme.get("card_border_exhausted", "#363843" if theme.get("name") == "dark" else "#e8e8e8")
+            else:
+                card_bg = theme["card_bg"]
+                hover_bg = theme.get("row_hover", "#3b3e4a" if theme.get("name") == "dark" else "#f7f7f7")
+                card_border = theme.get("card_border", "#424552" if theme.get("name") == "dark" else "#e5e5e5")
 
             # Windows 11 elevated card for model group
             card = tk.Frame(
                 container,
                 bg=card_bg,
                 highlightthickness=1,
-                highlightbackground=theme.get("card_border", "#363636"),
+                highlightbackground=card_border,
                 padx=10,
                 pady=8
             )
