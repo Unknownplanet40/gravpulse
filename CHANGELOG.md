@@ -4,6 +4,20 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-28
+
+### Added
+- 8 high-resolution UI preview screenshots in assets/samples showcasing dark/light popovers, tooltips, context menus, and offline states. (a9e89b3)
+- Dedicated Screenshots & Preview gallery table in README.md. (a9e89b3)
+- Theme tokens for card_bg_exhausted, card_border_exhausted, and row_hover_exhausted in dark and light themes. (a9e89b3)
+
+### Changed
+- Updated QuotaPopupWindow to apply theme-aware borders and hover highlights to exhausted quota cards. (a9e89b3)
+- Expanded quickstart instructions in README.md to emphasize standalone GravPulse.exe. (a9e89b3)
+- Added unit test coverage in tests/test_collector.py for new exhausted theme tokens. (a9e89b3)
+- point version.json at release v0.3.0 [skip ci] (b3223dd)
+
+
 ## [0.3.0] - 2026-10-16
 
 ### Added
