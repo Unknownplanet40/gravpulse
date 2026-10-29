@@ -10,6 +10,7 @@ __pycache__/
 # Build & Cache Outputs
 dist/
 build/
+*.exe
 out/
 .next/
 .nuxt/

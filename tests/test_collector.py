@@ -256,6 +256,39 @@ class TestTrayIconGeneration(unittest.TestCase):
         self.assertEqual(len(res["groups"]), 1)
         self.assertEqual(res["groups"][0]["buckets"][0]["percent"], 85.0)
 
+    def test_extract_token_variations(self):
+        """Verifies multi-format CSRF token extraction."""
+        collector = AntigravityCollector()
+        self.assertEqual(collector._extract_token_from_cmdline("server.exe --csrf_token abc-123"), "abc-123")
+        self.assertEqual(collector._extract_token_from_cmdline("server.exe --csrf-token=def-456"), "def-456")
+        self.assertEqual(collector._extract_token_from_cmdline("server.exe -csrf_token ghi-789"), "ghi-789")
+        self.assertEqual(collector._extract_token_from_cmdline("server.exe --host_bridge_token=xyz-999"), "xyz-999")
+        self.assertIsNone(collector._extract_token_from_cmdline("notepad.exe test.txt"))
+
+    def test_is_antigravity_process(self):
+        """Verifies Antigravity process identification."""
+        collector = AntigravityCollector()
+        self.assertTrue(collector._is_antigravity_process("language_server.exe", ""))
+        self.assertTrue(collector._is_antigravity_process("Antigravity.exe", ""))
+        self.assertTrue(collector._is_antigravity_process("node.exe", "--csrf_token 12345"))
+        self.assertFalse(collector._is_antigravity_process("chrome.exe", "https://google.com"))
+
+    def test_rescan_clears_cache(self):
+        """Verifies rescan() invalidates cached credentials and re-fetches."""
+        collector = AntigravityCollector()
+        collector.cached_pid = 999
+        collector.cached_port = 55555
+        collector.cached_token = "cached_tok"
+        collector.cached_email = "cached@test.com"
+        collector.get_quota = lambda force_refresh=False: {"online": True, "force": force_refresh}
+
+        res = collector.rescan()
+        self.assertIsNone(collector.cached_pid)
+        self.assertIsNone(collector.cached_port)
+        self.assertIsNone(collector.cached_token)
+        self.assertIsNone(collector.cached_email)
+        self.assertTrue(res.get("force"))
+
 if __name__ == "__main__":
     unittest.main()
 

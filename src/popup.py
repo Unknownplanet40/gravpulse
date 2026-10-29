@@ -148,7 +148,9 @@ class QuotaPopupWindow:
 
         if self.window is not None and self.window.winfo_exists():
             if self.is_visible:
-                self.hide()
+                self.window.deiconify()
+                self.window.lift()
+                self.window.focus_force()
                 return
             else:
                 self._render()

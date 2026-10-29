@@ -1,40 +1,36 @@
 # Handoff
 
 ## 1. Goal
-Provide a standalone, branded Windows desktop system tray widget monitoring Antigravity AI quotas and models in real time, with single branded notifications, standalone `.exe` distribution, and automatic release asset deployment on GitHub.
+Provide a resilient, branded Windows desktop system tray widget monitoring Antigravity AI quotas and models in real time, with zero-config multi-strategy auto-detection across future Antigravity updates.
 
 ## 2. Current State
 - **Branch**: `main`
-- **Commit Hash Pushed**: `6c8048a`
-- **Push Status**: Pushed and synchronized with `origin/main` (`a4cb1a2..6c8048a`).
-- **Automated CI Release**: Triggered on GitHub Actions (workflow run `Release` in progress for auto-version bump to `v0.3.0`).
-- **Binary Status**: Local `dist/GravPulse.exe` verified with full PE version resource details (`0.2.0.0` / `GravPulse`).
-- **Unit Tests**: 18/18 passing (`tests/test_collector.py`, `tests/test_skills.py`, `tests/test_paths.py`).
+- **Commit Hash Created**: `e7f645c`
+- **Push Status**: Awaiting user approval to push to `origin/main`.
+- **Automated CI Release**: When pushed, `.github/workflows/release.yml` will trigger and bump patch version (e.g., `v0.4.1`) and upload Windows binary.
+- **Binary Status**: Compiled local `GravPulse.exe` (in root and `dist/`) verified.
+- **Unit Tests**: 21/21 passing (`tests/test_collector.py`, `tests/test_skills.py`, `tests/test_paths.py`).
 
 ## 3. Active Files
-- `GravPulse.spec` (PyInstaller packaging specification with dynamic `VERSION` sync)
-- `version_info.txt` (Windows PE `VSVersionInfo` definition for FileDescription, ProductVersion, Copyrights)
-- `build.bat` (1-click local Windows build script)
-- `src/paths.py` (Centralized resource path resolution for dev and frozen `sys._MEIPASS`)
-- `.github/workflows/release.yml` (`build-windows-exe` job uploading `GravPulse.exe` to GitHub Releases)
-- `src/notification.py` (Branded Windows toast with LocalAppData icon caching)
-- `main.pyw` (Entry point, single notification call, single instance handling)
-- `src/startup.py` (Creates shortcut targeting `sys.executable` when running as frozen binary)
-- `PROJECT-LOG.md` (Permanent append-only historical record)
+- `src/collector.py`: 5-layer auto-detection engine, log scanner, active ConnectRPC port probe, SSL support.
+- `src/popup.py`: Fixed `show()` to lift and focus window instead of toggling off.
+- `src/tray.py`: Added "Auto-Detect / Rescan" tray menu action.
+- `run.vbs`: Auto-detects `GravPulse.exe` in root or `dist/`, fallback to `pythonw main.pyw`.
+- `build.bat`: Automatically kills running instances before PyInstaller and copies binary to root.
+- `tests/test_collector.py`: Token variations, process matcher, and rescan unit tests.
+- `PROJECT-LOG.md`: Permanent historical record updated.
 
 ## 4. Changes Made
-- Eliminated double notification bug by removing duplicate `self.tray.icon.notify` calls in `main.pyw` and `src/tray.py`.
-- Implemented `src/paths.py` to transparently resolve asset paths across dev mode and PyInstaller frozen temp directory (`sys._MEIPASS`).
-- Created `GravPulse.spec` embedding `assets/`, tray icons, app icon, and auto-syncing Windows version information.
-- Added PE metadata (`CompanyName`, `FileDescription`, `FileVersion`, `ProductName`, `ProductVersion`, `LegalCopyright`, `Comments`).
-- Created `build.bat` script for 1-click local compilation into `dist/GravPulse.exe`.
-- Added `build-windows-exe` job to `.github/workflows/release.yml` on `windows-latest` to build and upload `GravPulse.exe` directly to GitHub Releases.
-- Added `tests/test_paths.py` verifying path resolution and frozen simulation.
-- Committed `6c8048a` and pushed to `main`.
+- Solved Antigravity 44.5.1 dynamic port binding failure by parsing log files across APPDATA/USERPROFILE and accepting `status == 'NONE'` Windows sockets.
+- Added active ConnectRPC port probing (<300ms) with HTTP/HTTPS SSL verification.
+- Added "Auto-Detect / Rescan" item to system tray context menu.
+- Fixed popup window dismissal bug on `<FocusOut>` / `show()`.
+- Added 3 unit tests for token parsing, process detection, and cache clearing.
 
 ## 5. Failed Attempts
-- Direct overwrite of `dist/GravPulse.exe` failed initially with `PermissionError: [WinError 5]` because a test instance was still running; resolved by stopping existing test process before rebuilding.
+- Direct socket `c.status == 'LISTEN'` check failed because Go runtime sockets on Windows report status `'NONE'` with unassigned state in CIM. Resolved by accepting local sockets with empty remote addresses.
+- Rebuild failed initially due to running `GravPulse.exe` locking the file. Resolved by adding `taskkill` step to `build.bat`.
 
 ## 6. Specific Next Steps
-1. Verify GitHub Actions completes release `v0.3.0` and uploads `GravPulse.exe` to the release assets.
-2. Download and verify the release executable on a clean Windows machine without Python installed.
+1. Push commit `e7f645c` to `origin/main` upon user approval.
+2. Monitor GitHub Actions release workflow for automated tag `v0.4.1` and executable build artifact upload.

@@ -141,6 +141,15 @@ class AntigravityTrayApp:
             else:
                 self.popup.update_data(data)
 
+    def _on_rescan_clicked(self, icon, item):
+        data = self.collector.rescan()
+        self.update_quota(data)
+        if self.popup:
+            if self.popup.parent:
+                self.popup.parent.after(0, lambda: self.popup.update_data(data))
+            else:
+                self.popup.update_data(data)
+
     def _on_test_notification(self, icon, item):
         from src.notification import send_windows_toast
         send_windows_toast("GravPulse: Quota Refreshed", "Claude 3.5 Sonnet (5h) has refreshed to 100%!")
@@ -176,7 +185,8 @@ class AntigravityTrayApp:
 
         menu_items.append(pystray.MenuItem(status_text, lambda: None, enabled=False))
         menu_items.append(pystray.MenuItem("View Details", lambda icon, item: self._show_popup(), default=True))
-        menu_items.append(pystray.MenuItem("Refresh Now", self._on_refresh_clicked))
+        menu_items.append(pystray.MenuItem("Refresh Quotas", self._on_refresh_clicked))
+        menu_items.append(pystray.MenuItem("Auto-Detect / Rescan", self._on_rescan_clicked))
         """ menu_items.append(pystray.MenuItem("Test Notification", self._on_test_notification)) """
 
         # Theme submenu
