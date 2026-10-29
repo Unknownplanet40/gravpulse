@@ -4,6 +4,25 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-29
+
+### Added
+- 5-layer auto-detection engine scanning dynamic ports from Antigravity log files across APPDATA, USERPROFILE, and LOCALAPPDATA. (bd7f827)
+- ConnectRPC fast active port prober with HTTP and HTTPS SSL verification (<300ms). (bd7f827)
+- "Auto-Detect / Rescan" action in the system tray context menu. (bd7f827)
+- Alphanumeric and UUID token extraction supporting `--csrf_token`, `--csrf-token`, `--csrf_token=...`, and `--host_bridge_token`. (bd7f827)
+- Unit tests in `tests/test_collector.py` for token variations, process matching, and cache invalidation (21/21 passing). (bd7f827)
+
+### Changed
+- `.gitignore` updated to ignore root binary outputs. (bd7f827)
+- point version.json at release v0.4.0 [skip ci] (107e918)
+
+### Fixed
+- Language server detection failing on Antigravity 44.5.1 due to random ports and Windows sockets reporting status `NONE`. (bd7f827)
+- `QuotaPopupWindow.show()` closing the window when already visible instead of lifting and focusing it. (bd7f827)
+- `run.vbs` and `build.bat` paths to automatically locate root or dist binaries and gracefully stop existing instances before rebuild. (bd7f827)
+
+
 ## [0.4.0] - 2026-10-28
 
 ### Added
